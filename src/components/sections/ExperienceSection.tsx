@@ -5,7 +5,8 @@ const experiences = [
     title: "Frontend Developer Intern",
     company: "Drift Consult",
     period: "January 2025 - Present",
-    description: "Working on responsive web applications using React and modern frontend technologies. Collaborating with the design team to implement user interfaces and improve user experience."
+    description: "Working on responsive web applications using React and modern frontend technologies. Contributing to the development of Rack, a cloud-based POS system that streamlines retail businesses by providing access to features and data from anywhere. Rack integrates physical stores with e-commerce websites, allowing seamless inventory management and payment processing.",
+    link: "https://www.rack.business/"
   }
 ];
 
@@ -53,6 +54,31 @@ export default function ExperienceSection() {
                   <h3 className="text-xl font-bold">{experience.title}</h3>
                   <p className="text-secondary font-medium mt-1">{experience.company}</p>
                   <p className="text-muted mt-4">{experience.description}</p>
+                  {experience.link && (
+                    <a 
+                      href={experience.link} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="inline-flex items-center mt-4 text-primary hover:underline"
+                    >
+                      Visit Project
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round" 
+                        className="ml-1"
+                      >
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                      </svg>
+                    </a>
+                  )}
                 </div>
                 
                 {/* Empty space for alignment on opposite side */}
