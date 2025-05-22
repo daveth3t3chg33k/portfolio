@@ -2,7 +2,7 @@
 
 const experiences = [
   {
-    title: "Frontend Developer Intern",
+    title: "Frontend Developer",
     company: "Drift Consult",
     period: "January 2025 - Present",
     description: "Working on responsive web applications using React and modern frontend technologies. Contributing to the development of Rack, a cloud-based POS system that streamlines retail businesses by providing access to features and data from anywhere. Rack integrates physical stores with e-commerce websites, allowing seamless inventory management and payment processing.",
