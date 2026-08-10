@@ -1,144 +1,285 @@
-'use client';
+"use client";
 
-import ProjectImageFallback from '@/components/ui/ProjectImageFallback';
+import { useState } from "react";
 
-const projects = [
+/* ------------------------------------------------------------------
+   THE WORK — every project built/refined together, as an editorial
+   index. Each row expands into a case-study note (conflict → outcome).
+------------------------------------------------------------------- */
+
+type Project = {
+  index: string;
+  year: string;
+  title: string;
+  category: string;
+  conflict: string;
+  outcome: string;
+  stack: string[];
+  links: { label: string; href: string }[];
+  status: "live" | "demo" | "shipped" | "startup";
+};
+
+const projects: Project[] = [
   {
-    title: "AI-Powered Task Manager",
-    description: "A MERN stack application with AI capabilities to intelligently prioritize tasks, suggest deadlines, and provide productivity insights.",
-    image: "https://images.unsplash.com/photo-1596079890744-c1a0462d0975?auto=format&w=800",
-    bgColor: "from-purple-500/40 to-blue-500/40",
-    tags: ["React", "Node.js", "MongoDB", "Express", "Machine Learning"],
-    liveUrl: "https://ai-taskmanager.example.com",
-    githubUrl: "https://github.com/daveth3t3chg33k/ai-taskmanager"
+    index: "01",
+    year: "2026 — Present",
+    title: "LoyalMini",
+    category: "My startup · Fintech × Retail",
+    conflict:
+      "Kenyan retailers had no cheap way to run loyalty: paper cards get lost, off-the-shelf apps are expensive, and shoppers get nothing back for coming back.",
+    outcome:
+      "Building LoyalMini — a multi-tenant loyalty engine where shoppers earn points automatically with Lipa Na M-PESA and merchants run their entire program from the Safaricom Super App. Loyalty that actually pays.",
+    stack: ["M-PESA", "Safaricom Super App", "Retail", "Loyalty Engine"],
+    links: [{ label: "loyalmini.vercel.app", href: "https://loyalmini.vercel.app/" }],
+    status: "startup",
   },
   {
+    index: "02",
+    year: "2025",
+    title: "AI Task Manager",
+    category: "MERN × Machine Learning",
+    conflict:
+      "Plain to-do apps are passive: everything looks equally urgent, so deadlines slip and nothing surfaces.",
+    outcome:
+      "Built an intelligent layer that re-ranks tasks by urgency signals, suggests realistic deadlines, and serves productivity insights — so the list works for you, not the other way round.",
+    stack: ["React", "Node.js", "Express", "MongoDB", "ML"],
+    links: [
+      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
+      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
+    ],
+    status: "demo",
+  },
+  {
+    index: "03",
+    year: "2025",
     title: "NFT Marketplace",
-    description: "A decentralized marketplace for NFTs built on Ethereum using React and Solidity, featuring wallet integration, minting, and trading capabilities.",
-    image: "https://images.unsplash.com/photo-1639322537228-f710d846310a?auto=format&w=800",
-    bgColor: "from-emerald-500/40 to-teal-500/40",
-    tags: ["React", "Solidity", "Ethereum", "Web3.js", "Smart Contracts"],
-    liveUrl: "https://nft-marketplace.example.com",
-    githubUrl: "https://github.com/daveth3t3chg33k/nft-marketplace"
+    category: "Ethereum × Solidity",
+    conflict:
+      "Most marketplaces bury users in wallet friction and opaque contracts — trading feels like an obstacle course.",
+    outcome:
+      "Engineered a full Ethereum dApp with wallet integration, on-chain minting, and a smooth trading flow — smart contracts and UI working as one product.",
+    stack: ["React", "Solidity", "Ethereum", "Web3.js"],
+    links: [
+      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
+      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
+    ],
+    status: "demo",
   },
   {
+    index: "04",
+    year: "2025",
     title: "E-Commerce Platform",
-    description: "A full-featured e-commerce platform with advanced product filtering, payment processing, and user authentication built with Next.js.",
-    image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&w=800",
-    bgColor: "from-pink-500/40 to-red-500/40",
-    tags: ["Next.js", "MongoDB", "Stripe", "Redux", "Tailwind CSS"],
-    liveUrl: "https://ecommerce-platform.example.com",
-    githubUrl: "https://github.com/daveth3t3chg33k/ecommerce-platform"
+    category: "Next.js × Payments",
+    conflict:
+      "Small retailers get stuck between bloated platforms and half-baked plugins; the store never feels like *theirs*.",
+    outcome:
+      "Built a complete commerce stack with advanced product filtering, Redux cart state, authentication, and Stripe payments — fast enough to feel native.",
+    stack: ["Next.js", "MongoDB", "Stripe", "Redux", "Tailwind"],
+    links: [
+      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
+      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
+    ],
+    status: "demo",
   },
   {
+    index: "05",
+    year: "2025",
     title: "Predictive Analytics Dashboard",
-    description: "An ML-powered dashboard that visualizes data patterns and predicts future trends for businesses, built using React and TensorFlow.js.",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&w=800",
-    bgColor: "from-blue-500/40 to-indigo-500/40",
-    tags: ["React", "TensorFlow.js", "D3.js", "Node.js", "Python"],
-    liveUrl: "https://analytics-dashboard.example.com",
-    githubUrl: "https://github.com/daveth3t3chg33k/analytics-dashboard"
-  }
+    category: "React × TensorFlow.js",
+    conflict:
+      "Data is noise until something reads it. Teams needed trends and predictions without standing up a data-science pipeline.",
+    outcome:
+      "Shipped a dashboard running TensorFlow.js client-side — visualizing patterns and predicting trends with zero server-side inference.",
+    stack: ["React", "TensorFlow.js", "D3.js", "Node.js", "Python"],
+    links: [
+      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
+      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
+    ],
+    status: "demo",
+  },
+  {
+    index: "06",
+    year: "2025 — Present",
+    title: "Rack — Cloud POS",
+    category: "Drift Consult · Production",
+    conflict:
+      "Retailers ran two disconnected worlds — the shop floor and the website — duplicating inventory and losing sales between them.",
+    outcome:
+      "Contributing the frontend to Rack, a system that streamlines retail by merging physical and online stores: seamless inventory, payments, and data access from anywhere.",
+    stack: ["React", "TypeScript", "Cloud POS", "Payments"],
+    links: [{ label: "rack.business", href: "https://www.rack.business/" }],
+    status: "live",
+  },
+  {
+    index: "07",
+    year: "2026",
+    title: "This Portfolio — “Signal”",
+    category: "Next.js · Type-led",
+    conflict:
+      "Most portfolios are AI-slop: purple gradients, Inter, card grids, and 'Building the future' heroes. This one had to feel made by a specific human.",
+    outcome:
+      "Designed and built from scratch — an editorial, type-led system with restrained motion and zero borrowed UI patterns.",
+    stack: ["Next.js", "TypeScript", "Tailwind"],
+    links: [{ label: "Back to top", href: "#top" }],
+    status: "live",
+  },
 ];
 
-export default function ProjectsSection() {
+function ProjectRow({
+  project,
+  open,
+  onToggle,
+}: {
+  project: Project;
+  open: boolean;
+  onToggle: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
+
   return (
-    <section id="projects" className="py-20 bg-card overflow-hidden">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center space-x-2 mb-2">
-            <div className="h-px w-10 bg-primary"></div>
-            <span className="text-primary font-mono text-sm tracking-wider">MY WORK</span>
-            <div className="h-px w-10 bg-primary"></div>
-          </div>
-          
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-4">
-            Featured <span className="text-gradient">Projects</span>
-          </h2>
-          
-          <p className="text-muted max-w-2xl mx-auto">
-            A showcase of my best work across various technologies including MERN stack, Machine Learning, and Web3.
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project, index) => (
-            <div 
-              key={index}
-              className="group bg-card-hover rounded-xl overflow-hidden border border-border hover:border-primary/50 transition-all duration-300"
-            >
-              <div className="relative aspect-video overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10"></div>
-                <div className="w-full h-full relative">
-                  <ProjectImageFallback
-                    src={project.image}
-                    alt={project.title}
-                    title={project.title}
-                    bgClass={project.bgColor}
-                    width={600}
-                    height={340}
-                  />
-                </div>
-                <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </div>
-              
-              <div className="p-6">
-                <h3 className="text-xl font-bold mb-2 group-hover:text-gradient transition-all">
-                  {project.title}
-                </h3>
-                
-                <p className="text-muted mb-4">
-                  {project.description}
-                </p>
-                
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {project.tags.map((tag, tagIndex) => (
-                    <span 
-                      key={tagIndex}
-                      className="px-2 py-1 text-xs font-medium bg-card border border-border rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                
-                <div className="flex space-x-4">
-                  <a 
-                    href={project.liveUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn bg-primary text-black hover:bg-primary/90 text-sm px-4 py-2"
-                  >
-                    Live Demo
-                  </a>
-                  <a 
-                    href={project.githubUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn border border-primary text-primary hover:bg-primary/10 text-sm px-4 py-2"
-                  >
-                    GitHub
-                  </a>
-                </div>
-              </div>
+    <article className="hairline-t">
+      <button
+        onClick={onToggle}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        aria-expanded={open}
+        aria-controls={`project-${project.index}`}
+        className="group grid w-full grid-cols-12 items-baseline gap-2 py-7 text-left md:py-9"
+      >
+        <span className="col-span-2 font-mono text-xs text-faint md:col-span-1">
+          {project.index}
+        </span>
+        <span className="col-span-2 hidden font-mono text-xs text-faint md:block">
+          {project.year}
+        </span>
+        <span className="col-span-8 font-display text-2xl leading-tight transition-colors duration-200 group-hover:text-signal md:col-span-5 md:text-4xl lg:text-5xl">
+          {project.title}
+        </span>
+        <span className="col-span-8 col-start-3 hidden text-sm text-muted md:col-span-4 md:col-start-auto md:block">
+          {project.category}
+        </span>
+        <span
+          className="col-span-2 text-right font-mono text-sm transition-transform duration-300"
+          style={{
+            transform: open ? "rotate(45deg)" : "rotate(0deg)",
+            color: hovered ? "var(--signal)" : "var(--faint)",
+          }}
+          aria-hidden="true"
+        >
+          +
+        </span>
+      </button>
+
+      {/* expandable case note */}
+      <div
+        className="grid transition-all duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          opacity: open ? 1 : 0,
+        }}
+        id={`project-${project.index}`}
+      >
+        <div className="overflow-hidden">
+          <div className="pb-9 pl-4 md:pl-16">
+            <p className="max-w-2xl text-muted">
+              <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal">
+                The problem{" "}
+              </span>
+              <br />
+              {project.conflict}
+            </p>
+            <p className="mt-5 max-w-2xl text-foreground">
+              <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal">
+                What I built{" "}
+              </span>
+              <br />
+              {project.outcome}
+            </p>
+
+            <div className="mt-6 flex flex-wrap gap-2">
+              {project.stack.map((s) => (
+                <span
+                  key={s}
+                  className="border border-hairline px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted"
+                >
+                  {s}
+                </span>
+              ))}
             </div>
-          ))}
-        </div>
-        
-        <div className="text-center mt-12">
-          <a 
-            href="https://github.com/daveth3t3chg33k"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn border border-primary text-primary hover:bg-primary/10 inline-flex items-center"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-            </svg>
-            View More Projects
-          </a>
+
+            <div className="mt-7 flex flex-wrap gap-6">
+              {project.links.map((l) => (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  target={l.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    l.href.startsWith("http") ? "noopener noreferrer" : undefined
+                  }
+                  className="arrow-link"
+                >
+                  {l.label}
+                  <span className="arrow">→</span>
+                </a>
+              ))}
+              <span className="ml-auto font-mono text-[0.68rem] uppercase tracking-[0.15em] text-faint">
+                {project.status}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
+    </article>
+  );
+}
+
+export default function ProjectsSection() {
+  const [openIndex, setOpenIndex] = useState<string | null>("01");
+
+  return (
+    <section id="work" className="relative mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32">
+      <header className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-12 md:items-end">
+        <div className="md:col-span-8">
+          <p className="overline-label mb-5">01 / The Work</p>
+          <h2 className="font-display text-5xl leading-none md:text-7xl">
+            Every project, <em className="italic-signal">earned</em>
+          </h2>
+        </div>
+        <p className="max-w-sm text-muted md:col-span-4">
+          No screenshots, no stock images. Each row opens into the real story —
+          the problem, the trade-off, the build. These are the things we&apos;ve
+          shipped together.
+        </p>
+      </header>
+
+      <div>
+        {projects.map((p) => (
+          <ProjectRow
+            key={p.index}
+            project={p}
+            open={openIndex === p.index}
+            onToggle={() =>
+              setOpenIndex(openIndex === p.index ? null : p.index)
+            }
+          />
+        ))}
+      </div>
+
+      <div className="hairline-b" />
+
+      <footer className="mt-14 flex flex-wrap items-center justify-between gap-6">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+          More in the archive on GitHub
+        </p>
+        <a
+          href="https://github.com/daveth3t3chg33k"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="arrow-link"
+        >
+          daveth3t3chg33k <span className="arrow">→</span>
+        </a>
+      </footer>
     </section>
   );
-} 
+}

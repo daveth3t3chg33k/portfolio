@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,16 +7,40 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz", "SOFT", "WONK"],
+  style: ["normal", "italic"],
+});
+
+const jetbrains = JetBrains_Mono({
+  variable: "--font-jetbrains",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "Developer Portfolio | MERN Stack, ML & Web3",
-  description: "Portfolio showcasing expertise in MERN stack, Machine Learning, Web3 and software development",
-  keywords: ["MERN", "React", "Node.js", "Web3", "Machine Learning", "Software Developer"],
-  creator: "Your Name",
+  title: "Dave Kamirah — Full-stack Engineer (MERN · ML · Web3)",
+  description:
+    "Dave Kamirah builds full-stack products with a signal: MERN apps, machine-learning tooling, and Web3 contracts. Currently shipping Rack, a cloud POS for retail.",
+  keywords: [
+    "Dave Kamirah",
+    "CodeSavant",
+    "Full-stack developer",
+    "MERN",
+    "React",
+    "Next.js",
+    "Machine Learning",
+    "Web3",
+    "Nairobi developer",
+  ],
+  creator: "Dave Kamirah",
+  openGraph: {
+    title: "Dave Kamirah — Software With a Signal",
+    description:
+      "Full-stack engineer. MERN, ML & Web3. Currently shipping Rack, a cloud POS for retail.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -27,7 +51,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${fraunces.variable} ${jetbrains.variable} antialiased grain`}
       >
         {children}
       </body>
