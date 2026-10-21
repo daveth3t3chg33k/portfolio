@@ -1,131 +1,63 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { projects, type Project } from "@/lib/projects";
 
 /* ------------------------------------------------------------------
-   THE WORK — every project built/refined together, as an editorial
-   index. Each row expands into a case-study note (conflict → outcome).
+   THE WORK — a numbered index, not a card grid. Hairline rows, one
+   accordion note at a time. "link" mode points straight at case files.
 ------------------------------------------------------------------- */
 
-type Project = {
-  index: string;
-  year: string;
-  title: string;
-  category: string;
-  conflict: string;
-  outcome: string;
-  stack: string[];
-  links: { label: string; href: string }[];
-  status: "live" | "demo" | "shipped" | "startup";
+const statusLabel: Record<Project["status"], string> = {
+  live: "live",
+  demo: "demo",
+  shipped: "shipped",
+  startup: "startup",
 };
 
-const projects: Project[] = [
-  {
-    index: "01",
-    year: "2026 — Present",
-    title: "LoyalMini",
-    category: "My startup · Fintech × Retail",
-    conflict:
-      "Kenyan retailers had no cheap way to run loyalty: paper cards get lost, off-the-shelf apps are expensive, and shoppers get nothing back for coming back.",
-    outcome:
-      "Building LoyalMini — a multi-tenant loyalty engine where shoppers earn points automatically with Lipa Na M-PESA and merchants run their entire program from the Safaricom Super App. Loyalty that actually pays.",
-    stack: ["M-PESA", "Safaricom Super App", "Retail", "Loyalty Engine"],
-    links: [{ label: "loyalmini.vercel.app", href: "https://loyalmini.vercel.app/" }],
-    status: "startup",
-  },
-  {
-    index: "02",
-    year: "2025",
-    title: "AI Task Manager",
-    category: "MERN × Machine Learning",
-    conflict:
-      "Plain to-do apps are passive: everything looks equally urgent, so deadlines slip and nothing surfaces.",
-    outcome:
-      "Built an intelligent layer that re-ranks tasks by urgency signals, suggests realistic deadlines, and serves productivity insights — so the list works for you, not the other way round.",
-    stack: ["React", "Node.js", "Express", "MongoDB", "ML"],
-    links: [
-      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
-      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
-    ],
-    status: "demo",
-  },
-  {
-    index: "03",
-    year: "2025",
-    title: "NFT Marketplace",
-    category: "Ethereum × Solidity",
-    conflict:
-      "Most marketplaces bury users in wallet friction and opaque contracts — trading feels like an obstacle course.",
-    outcome:
-      "Engineered a full Ethereum dApp with wallet integration, on-chain minting, and a smooth trading flow — smart contracts and UI working as one product.",
-    stack: ["React", "Solidity", "Ethereum", "Web3.js"],
-    links: [
-      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
-      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
-    ],
-    status: "demo",
-  },
-  {
-    index: "04",
-    year: "2025",
-    title: "E-Commerce Platform",
-    category: "Next.js × Payments",
-    conflict:
-      "Small retailers get stuck between bloated platforms and half-baked plugins; the store never feels like *theirs*.",
-    outcome:
-      "Built a complete commerce stack with advanced product filtering, Redux cart state, authentication, and Stripe payments — fast enough to feel native.",
-    stack: ["Next.js", "MongoDB", "Stripe", "Redux", "Tailwind"],
-    links: [
-      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
-      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
-    ],
-    status: "demo",
-  },
-  {
-    index: "05",
-    year: "2025",
-    title: "Predictive Analytics Dashboard",
-    category: "React × TensorFlow.js",
-    conflict:
-      "Data is noise until something reads it. Teams needed trends and predictions without standing up a data-science pipeline.",
-    outcome:
-      "Shipped a dashboard running TensorFlow.js client-side — visualizing patterns and predicting trends with zero server-side inference.",
-    stack: ["React", "TensorFlow.js", "D3.js", "Node.js", "Python"],
-    links: [
-      { label: "GitHub", href: "https://github.com/daveth3t3chg33k" },
-      { label: "Live demo", href: "https://github.com/daveth3t3chg33k" },
-    ],
-    status: "demo",
-  },
-  {
-    index: "06",
-    year: "2025 — Present",
-    title: "Rack — Cloud POS",
-    category: "Drift Consult · Production",
-    conflict:
-      "Retailers ran two disconnected worlds — the shop floor and the website — duplicating inventory and losing sales between them.",
-    outcome:
-      "Contributing the frontend to Rack, a system that streamlines retail by merging physical and online stores: seamless inventory, payments, and data access from anywhere.",
-    stack: ["React", "TypeScript", "Cloud POS", "Payments"],
-    links: [{ label: "rack.business", href: "https://www.rack.business/" }],
-    status: "live",
-  },
-  {
-    index: "07",
-    year: "2026",
-    title: "This Portfolio — “Signal”",
-    category: "Next.js · Type-led",
-    conflict:
-      "Most portfolios are AI-slop: purple gradients, Inter, card grids, and 'Building the future' heroes. This one had to feel made by a specific human.",
-    outcome:
-      "Designed and built from scratch — an editorial, type-led system with restrained motion and zero borrowed UI patterns.",
-    stack: ["Next.js", "TypeScript", "Tailwind"],
-    links: [{ label: "Back to top", href: "#top" }],
-    status: "live",
-  },
-];
+function RowGrid({
+  project,
+  trailing,
+}: {
+  project: Project;
+  trailing: React.ReactNode;
+}) {
+  return (
+    <>
+      <span className="col-span-2 font-mono text-[0.62rem] tabular-nums tracking-[0.1em] text-faint md:col-span-1">
+        {project.index}
+      </span>
+      <span className="index-title col-span-8 font-display text-2xl leading-none md:col-span-5 md:text-[2.4rem]">
+        {project.title}
+      </span>
+      <span className="col-span-8 col-start-3 hidden text-sm text-muted md:col-span-3 md:col-start-auto md:block">
+        {project.category}
+      </span>
+      <span className="hidden font-mono text-[0.62rem] uppercase tracking-[0.1em] text-faint md:col-span-2 md:block md:text-right">
+        {project.year}
+      </span>
+      {trailing}
+    </>
+  );
+}
 
-function ProjectRow({
+function StackTags({ items }: { items: string[] }) {
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {items.map((s) => (
+        <li
+          key={s}
+          className="border border-hairline px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.1em] text-muted"
+        >
+          {s}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ExpandRow({
   project,
   open,
   onToggle,
@@ -134,97 +66,80 @@ function ProjectRow({
   open: boolean;
   onToggle: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
-    <article className="hairline-t">
+    <article className="border-t border-hairline">
       <button
         onClick={onToggle}
-        onMouseEnter={() => setHovered(true)}
-        onMouseLeave={() => setHovered(false)}
         aria-expanded={open}
-        aria-controls={`project-${project.index}`}
-        className="group grid w-full grid-cols-12 items-baseline gap-2 py-7 text-left md:py-9"
+        aria-controls={`project-${project.slug}`}
+        className="index-row group grid w-full grid-cols-12 items-baseline gap-2 py-6 text-left md:py-8"
       >
-        <span className="col-span-2 font-mono text-xs text-faint md:col-span-1">
-          {project.index}
-        </span>
-        <span className="col-span-2 hidden font-mono text-xs text-faint md:block">
-          {project.year}
-        </span>
-        <span className="col-span-8 font-display text-2xl leading-tight transition-colors duration-200 group-hover:text-signal md:col-span-5 md:text-4xl lg:text-5xl">
-          {project.title}
-        </span>
-        <span className="col-span-8 col-start-3 hidden text-sm text-muted md:col-span-4 md:col-start-auto md:block">
-          {project.category}
-        </span>
-        <span
-          className="col-span-2 text-right font-mono text-sm transition-transform duration-300"
-          style={{
-            transform: open ? "rotate(45deg)" : "rotate(0deg)",
-            color: hovered ? "var(--signal)" : "var(--faint)",
-          }}
-          aria-hidden="true"
-        >
-          +
-        </span>
+        <RowGrid
+          project={project}
+          trailing={
+            <span
+              className="col-span-2 text-right font-mono text-sm text-faint transition-transform duration-300 group-hover:text-signal md:col-span-1"
+              style={{ transform: open ? "rotate(45deg)" : "rotate(0deg)" }}
+              aria-hidden="true"
+            >
+              +
+            </span>
+          }
+        />
       </button>
 
-      {/* expandable case note */}
       <div
         className="grid transition-all duration-500 ease-[cubic-bezier(.22,1,.36,1)]"
         style={{
           gridTemplateRows: open ? "1fr" : "0fr",
           opacity: open ? 1 : 0,
         }}
-        id={`project-${project.index}`}
+        id={`project-${project.slug}`}
       >
         <div className="overflow-hidden">
-          <div className="pb-9 pl-4 md:pl-16">
-            <p className="max-w-2xl text-muted">
-              <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal">
-                The problem{" "}
-              </span>
-              <br />
-              {project.conflict}
-            </p>
-            <p className="mt-5 max-w-2xl text-foreground">
-              <span className="font-mono text-[0.7rem] uppercase tracking-[0.2em] text-signal">
-                What I built{" "}
-              </span>
-              <br />
-              {project.outcome}
-            </p>
+          <div className="grid grid-cols-1 gap-8 pb-10 md:grid-cols-12 md:gap-10">
+            <div className="md:col-span-1" />
+            <div className="md:col-span-6">
+              <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                The problem
+              </p>
+              <p className="mt-2 max-w-xl text-muted">{project.conflict}</p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              {project.stack.map((s) => (
-                <span
-                  key={s}
-                  className="border border-hairline px-3 py-1 font-mono text-[0.68rem] uppercase tracking-[0.12em] text-muted"
-                >
-                  {s}
-                </span>
-              ))}
+              <p className="mt-6 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                What I built
+              </p>
+              <p className="mt-2 max-w-xl text-foreground">{project.outcome}</p>
             </div>
 
-            <div className="mt-7 flex flex-wrap gap-6">
-              {project.links.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  target={l.href.startsWith("http") ? "_blank" : undefined}
-                  rel={
-                    l.href.startsWith("http") ? "noopener noreferrer" : undefined
-                  }
-                  className="arrow-link"
+            <div className="md:col-span-4 md:col-start-9">
+              <StackTags items={project.stack} />
+
+              <div className="mt-6 flex flex-col items-start gap-3">
+                <Link
+                  href={`/work/${project.slug}`}
+                  className="arrow-link text-foreground"
                 >
-                  {l.label}
-                  <span className="arrow">→</span>
-                </a>
-              ))}
-              <span className="ml-auto font-mono text-[0.68rem] uppercase tracking-[0.15em] text-faint">
-                {project.status}
-              </span>
+                  Read the case file <span className="arrow">→</span>
+                </Link>
+                {project.links.map((l) => (
+                  <a
+                    key={l.label}
+                    href={l.href}
+                    target={l.href.startsWith("http") ? "_blank" : undefined}
+                    rel={
+                      l.href.startsWith("http")
+                        ? "noopener noreferrer"
+                        : undefined
+                    }
+                    className="arrow-link"
+                  >
+                    {l.label} <span className="arrow">→</span>
+                  </a>
+                ))}
+                <span className="mt-2 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                  {statusLabel[project.status]}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -233,42 +148,75 @@ function ProjectRow({
   );
 }
 
-export default function ProjectsSection() {
-  const [openIndex, setOpenIndex] = useState<string | null>("01");
+function LinkRow({ project }: { project: Project }) {
+  return (
+    <article className="border-t border-hairline">
+      <Link
+        href={`/work/${project.slug}`}
+        className="index-row group grid grid-cols-12 items-baseline gap-2 py-6 md:py-7"
+      >
+        <RowGrid
+          project={project}
+          trailing={
+            <span className="col-span-2 text-right font-mono text-sm text-faint transition-all duration-300 group-hover:translate-x-1 group-hover:text-signal md:col-span-1">
+              →
+            </span>
+          }
+        />
+      </Link>
+    </article>
+  );
+}
+
+export function ProjectIndex({
+  items = projects,
+  mode = "expand",
+}: {
+  items?: Project[];
+  mode?: "expand" | "link";
+}) {
+  const [openSlug, setOpenSlug] = useState<string | null>(
+    items[0]?.slug ?? null
+  );
 
   return (
-    <section id="work" className="relative mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32">
-      <header className="mb-16 grid grid-cols-1 gap-6 md:grid-cols-12 md:items-end">
-        <div className="md:col-span-8">
-          <p className="overline-label mb-5">01 / The Work</p>
-          <h2 className="font-display text-5xl leading-none md:text-7xl">
-            Every project, <em className="italic-signal">earned</em>
-          </h2>
-        </div>
-        <p className="max-w-sm text-muted md:col-span-4">
-          No screenshots, no stock images. Each row opens into the real story —
-          the problem, the trade-off, the build. These are the things we&apos;ve
-          shipped together.
-        </p>
-      </header>
-
-      <div>
-        {projects.map((p) => (
-          <ProjectRow
-            key={p.index}
-            project={p}
-            open={openIndex === p.index}
+    <div className="border-b border-hairline">
+      {items.map((project) =>
+        mode === "expand" ? (
+          <ExpandRow
+            key={project.slug}
+            project={project}
+            open={openSlug === project.slug}
             onToggle={() =>
-              setOpenIndex(openIndex === p.index ? null : p.index)
+              setOpenSlug(openSlug === project.slug ? null : project.slug)
             }
           />
-        ))}
+        ) : (
+          <LinkRow key={project.slug} project={project} />
+        )
+      )}
+    </div>
+  );
+}
+
+/* Full section, used by /work */
+export default function ProjectsSection() {
+  return (
+    <section
+      id="work"
+      className="mx-auto w-full max-w-[1400px] px-5 pb-24 md:px-10 md:pb-32"
+    >
+      <div className="mb-10 flex flex-wrap items-baseline justify-between gap-4">
+        <p className="overline-label">Index — all work</p>
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-faint">
+          {String(projects.length).padStart(2, "0")} projects · open a row
+        </p>
       </div>
 
-      <div className="hairline-b" />
+      <ProjectIndex mode="expand" />
 
-      <footer className="mt-14 flex flex-wrap items-center justify-between gap-6">
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-faint">
+      <footer className="mt-10 flex flex-wrap items-center justify-between gap-6">
+        <p className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-faint">
           More in the archive on GitHub
         </p>
         <a

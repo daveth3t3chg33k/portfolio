@@ -2,22 +2,24 @@
 @import "./animations.css";
 
 /* ------------------------------------------------------------------
-   SIGNAL — editorial design system
-   Warm ink-on-paper. One functional accent. Type-led, not card-led.
+   GALLERY — a light, minimal design system
+   Warm off-white canvas, near-black ink, one restrained rust accent.
+   Grotesk for structure, a single serif italic for voice, mono for
+   metadata. Hairlines instead of boxes. No grain, no gradients.
 ------------------------------------------------------------------- */
 :root {
-  --background: #0e0d0a;
-  --foreground: #f2ede3;
-  --paper: #171511;
-  --paper-2: #1f1c16;
-  --signal: #d8f05a;
-  --signal-deep: #9db434;
-  --signal-ink: #131706;
-  --muted: #a09a8c;
-  --faint: #6e695d;
-  --hairline: #2b281f;
-  --focus: #ffb454;
-  --selection: rgba(216, 240, 90, 0.28);
+  --background: #f4f2ec;
+  --foreground: #14140f;
+  --paper: #ebe8df;
+  --paper-2: #e2ded2;
+  --signal: #b03a1c;
+  --signal-deep: #8c2c14;
+  --signal-ink: #faf8f3;
+  --muted: #6b675e;
+  --faint: #7a756a;
+  --hairline: #dcd7cb;
+  --focus: #1652d8;
+  --selection: rgba(176, 58, 28, 0.16);
 }
 
 @theme inline {
@@ -34,7 +36,7 @@
   --color-focus: var(--focus);
 
   --font-sans: var(--font-geist-sans);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-geist-sans);
   --font-mono: var(--font-jetbrains);
 }
 
@@ -58,59 +60,64 @@ body {
   color: var(--foreground);
 }
 
-/* hairline scrollbar, signal thumb */
+/* hairline scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--signal-deep) var(--background);
+  scrollbar-color: #c9c4b6 var(--background);
 }
 *::-webkit-scrollbar {
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
 }
 *::-webkit-scrollbar-track {
   background: var(--background);
 }
 *::-webkit-scrollbar-thumb {
-  background-color: var(--signal-deep);
-  border: 2px solid var(--background);
+  background-color: #c9c4b6;
+  border: 3px solid var(--background);
   border-radius: 0;
 }
 
 /* ---------- type ---------- */
 .font-display {
-  font-family: var(--font-fraunces);
-  font-optical-sizing: auto;
+  font-family: var(--font-geist-sans);
+  font-weight: 500;
+  letter-spacing: -0.035em;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-fraunces);
-  font-optical-sizing: auto;
-  font-weight: 480;
-  letter-spacing: -0.02em;
-  line-height: 0.98;
+h1,
+h2,
+h3 {
+  font-family: var(--font-geist-sans);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
 }
 
+/* the one serif moment — contrast without decoration */
 .italic-signal {
+  font-family: var(--font-fraunces);
   font-style: italic;
-  color: var(--signal);
   font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--signal);
 }
 
 /* small mono overline used on every section */
 .overline-label {
   font-family: var(--font-jetbrains);
-  font-size: 0.72rem;
-  letter-spacing: 0.22em;
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--signal);
+  color: var(--faint);
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 .overline-label::before {
   content: "";
-  width: 2.25rem;
-  height: 1px;
+  width: 6px;
+  height: 6px;
   background: var(--signal);
 }
 
@@ -131,17 +138,6 @@ h1, h2, h3 {
   background: var(--paper);
 }
 
-/* editorial grain — cheap film texture over the whole page */
-.grain::after {
-  content: "";
-  position: fixed;
-  inset: -50%;
-  z-index: 60;
-  pointer-events: none;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /* ---------- links & buttons ---------- */
 .link-underline {
   position: relative;
@@ -151,7 +147,7 @@ h1, h2, h3 {
   content: "";
   position: absolute;
   left: 0;
-  bottom: -2px;
+  bottom: -3px;
   width: 100%;
   height: 1px;
   background: currentColor;
@@ -169,37 +165,55 @@ h1, h2, h3 {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.9rem 1.6rem;
-  background: var(--signal);
-  color: var(--signal-ink);
+  padding: 0.85rem 1.35rem;
+  background: var(--foreground);
+  color: var(--background);
   font-family: var(--font-jetbrains);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: background 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 .btn-signal:hover {
-  background: var(--foreground);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 24px rgba(216, 240, 90, 0.18);
+  background: var(--signal);
+  color: var(--signal-ink);
 }
 
 .btn-ghost {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.9rem 1.6rem;
+  padding: 0.85rem 1.35rem;
   border: 1px solid var(--hairline);
   color: var(--foreground);
   font-family: var(--font-jetbrains);
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+  transition: border-color 0.18s ease, background 0.18s ease;
 }
 .btn-ghost:hover {
+  border-color: var(--foreground);
+  background: var(--paper);
+}
+
+/* form fields — one focus colour: a rust border, never a browser ring */
+.field {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--hairline);
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+.field::placeholder {
+  color: var(--faint);
+}
+.field:focus,
+.field:focus-visible {
+  outline: none;
   border-color: var(--signal);
-  color: var(--signal);
+  background: var(--signal-ink);
 }
 
 /* arrow that slides on hover */
@@ -208,7 +222,7 @@ h1, h2, h3 {
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-jetbrains);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
@@ -219,10 +233,25 @@ h1, h2, h3 {
   transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .arrow-link:hover {
-  color: var(--signal);
+  color: var(--foreground);
 }
 .arrow-link:hover .arrow {
   transform: translateX(5px);
+}
+
+/* numbered index row — the work list, not a card */
+.index-row {
+  transition: background-color 0.22s ease, padding-left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.index-row:hover {
+  background: var(--paper);
+}
+.index-row .index-title {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), color 0.2s ease;
+}
+.index-row:hover .index-title {
+  transform: translateX(14px);
+  color: var(--signal);
 }
 
 /* ---------- accessibility ---------- */
