@@ -14,6 +14,7 @@ const statusLabel: Record<Project["status"], string> = {
   demo: "demo",
   shipped: "shipped",
   startup: "startup",
+  repo: "open source",
 };
 
 function RowGrid({

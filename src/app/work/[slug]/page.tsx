@@ -38,6 +38,7 @@ const statusCopy: Record<Project["status"], string> = {
   demo: "Demo build",
   shipped: "Shipped",
   startup: "In build — startup",
+  repo: "Open source — on GitHub",
 };
 
 function Labeled({

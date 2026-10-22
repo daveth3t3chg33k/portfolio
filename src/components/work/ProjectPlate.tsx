@@ -13,6 +13,7 @@ const statusLabel = {
   demo: "Demo build",
   shipped: "Shipped",
   startup: "In build",
+  repo: "Open source",
 } as const;
 
 function StackTags({ items }: { items: string[] }) {
