@@ -58,6 +58,24 @@ function Labeled({
   );
 }
 
+function Notes({ notes }: { notes: { label: string; body: string }[] }) {
+  return (
+    <dl className="mt-7 border-b border-hairline">
+      {notes.map((note) => (
+        <div
+          key={note.label}
+          className="grid grid-cols-1 gap-2 border-t border-hairline py-4 md:grid-cols-12 md:gap-6"
+        >
+          <dt className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-signal md:col-span-3 md:pt-1">
+            {note.label}
+          </dt>
+          <dd className="text-muted md:col-span-9">{note.body}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export default async function CasePage({
   params,
 }: {
@@ -145,6 +163,39 @@ export default async function CasePage({
             <p className="mt-3 text-lg leading-relaxed text-foreground">
               {project.outcome}
             </p>
+
+            {project.engine && (
+              <>
+                <h2 className="mt-12 font-display text-2xl leading-tight md:text-3xl">
+                  Under the hood
+                </h2>
+                <p className="mt-3 text-lg leading-relaxed text-muted">
+                  {project.engine.lede}
+                </p>
+                <Notes notes={project.engine.notes} />
+
+                {project.engine.rust && (
+                  <>
+                    <p className="overline-label mt-12">In Rust</p>
+                    <p className="mt-3 text-lg leading-relaxed text-muted">
+                      {project.engine.rust.lede}
+                    </p>
+                    <Notes notes={project.engine.rust.notes} />
+
+                    {project.engine.rust.listing && (
+                      <figure className="mt-8">
+                        <div className="overflow-x-auto border-y border-hairline bg-paper px-5 py-5">
+                          <pre className="font-mono text-[0.62rem] leading-[1.75] text-foreground md:text-[0.7rem]">{project.engine.rust.listing.code}</pre>
+                        </div>
+                        <figcaption className="mt-2 font-mono text-[0.56rem] uppercase tracking-[0.14em] text-faint">
+                          {project.engine.rust.listing.caption}
+                        </figcaption>
+                      </figure>
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
             <h2 className="mt-12 font-display text-2xl leading-tight md:text-3xl">
               Decisions that mattered

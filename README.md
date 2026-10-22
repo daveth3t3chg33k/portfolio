@@ -42,6 +42,6 @@ node scripts/generate-project-covers.mjs [slug ...]
 
 Both need the `sharp` dev dependency (the captures also need local Chrome).
 Covers are deterministic geometry seeded from the slug — artwork, not
-screenshots, and the caption on the plate says so. A project with a live URL
-prints its real capture on the case page; its cover is the index thumbnail,
-and every project without a deployment prints its cover as the plate.
+screenshots, and the caption on the plate says so. A real capture always wins:
+a project with a live URL shows its screenshot on the case page and in the
+work index. Projects without a deployment print their cover plate instead.

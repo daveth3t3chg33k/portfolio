@@ -45,22 +45,27 @@ function RowGrid({
   );
 }
 
-function CoverThumb({ project }: { project: Project }) {
+/* A real capture always wins over the drawn cover — the cover is only what a
+   project without a deployment gets. */
+function PlateThumb({ project }: { project: Project }) {
   const cover = coverFor(project.slug);
-  if (!cover) return null;
+  const image = project.shot ?? cover;
+  if (!image) return null;
 
   return (
     <figure>
       <Image
-        src={cover.src}
-        alt={cover.alt}
-        width={cover.width}
-        height={cover.height}
+        src={image.src}
+        alt={image.alt}
+        width={image.width}
+        height={image.height}
         sizes="(min-width: 768px) 320px, 100vw"
         className="h-auto w-full border border-hairline"
       />
       <figcaption className="mt-2 font-mono text-[0.56rem] uppercase tracking-[0.12em] text-faint">
-        Plate {project.index} · {cover.motif}
+        {project.shot
+          ? `Capture · ${project.shot.source}`
+          : `Plate ${project.index} · ${cover!.motif}`}
       </figcaption>
     </figure>
   );
@@ -124,7 +129,7 @@ function ExpandRow({
           <div className="grid grid-cols-1 gap-8 pb-10 md:grid-cols-12 md:gap-10">
             <div className="md:col-span-1" />
             <div className="md:col-span-3 md:col-start-2">
-              <CoverThumb project={project} />
+              <PlateThumb project={project} />
             </div>
             <div className="md:col-span-5 md:col-start-5">
               <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">

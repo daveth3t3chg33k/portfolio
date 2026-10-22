@@ -17,6 +17,24 @@ export type Shot = {
   captured: string;
 };
 
+/* Optional deep dive into a system underneath a product, printed on the case
+   page as labelled notes — the layer a screenshot can never show. `rust` adds
+   the implementation particulars for systems written in Rust, optionally with
+   a real listing from the source. */
+export type EngineNote = { label: string; body: string };
+
+export type CodeListing = { caption: string; code: string };
+
+export type Engine = {
+  lede: string;
+  notes: EngineNote[];
+  rust?: {
+    lede: string;
+    notes: EngineNote[];
+    listing?: CodeListing;
+  };
+};
+
 export type Project = {
   slug: string;
   index: string;
@@ -34,6 +52,7 @@ export type Project = {
   featured: boolean;
   layer: "product" | "systems";
   shot?: Shot;
+  engine?: Engine;
 };
 
 export const projects: Project[] = [
@@ -48,13 +67,22 @@ export const projects: Project[] = [
     conflict:
       "Kenyan retailers had no cheap way to run loyalty: paper cards get lost, off-the-shelf apps are expensive, and shoppers get nothing back for coming back.",
     outcome:
-      "Building LoyalMini — a multi-tenant loyalty engine where shoppers earn points automatically with Lipa Na M-PESA and merchants run their entire program from the Safaricom Super App. Loyalty that actually pays.",
+      "Building LoyalMini — a multi-tenant loyalty engine where shoppers earn points automatically with Lipa Na M-PESA and merchants run their entire program from the Safaricom Super App. The engine itself is Rust (Axum on Tokio) over PostgreSQL and Redis: Safaricom posts the payment, the engine resolves the tenant, credits an append-only ledger and updates the balance and tier in the same transaction, and the cashier can look up or spend points at the till. Nothing is claimed twice, nothing is stored as a float, and the shopkeeper never opens a dashboard to make it work.",
     highlights: [
       "Multi-tenant by design: one engine serving many merchants, each with isolated programs, balances and reporting.",
       "Points accrue on Lipa Na M-PESA payments — no extra card, no extra app, no cashier step to forget.",
+      "Every credit is written once: a UNIQUE M-Pesa receipt plus a Redis lock make replays a no-op, not a double payout.",
+      "Money and rates are integers end to end — amounts in minor units, earn rates scaled by 10,000 — so points math never drifts.",
       "Merchant tooling lives inside the Safaricom Super App, so the dashboard is already in the shopkeeper's pocket.",
     ],
-    stack: ["M-PESA Daraja", "Safaricom Super App", "Multi-tenant", "Loyalty Engine"],
+    stack: [
+      "Rust",
+      "Axum",
+      "PostgreSQL",
+      "Redis",
+      "M-PESA Daraja",
+      "Safaricom Super App",
+    ],
     links: [{ label: "loyalmini.com", href: "https://loyalmini.com" }],
     status: "startup",
     featured: true,
@@ -67,6 +95,86 @@ export const projects: Project[] = [
       caption: "The live homepage — one wallet, every channel",
       source: "loyalmini.com",
       captured: "Oct 2026",
+    },
+    engine: {
+      lede:
+        "The part a screenshot can't show: a payment lands, and six things have to be true before the shopper sees a point.",
+      notes: [
+        {
+          label: "Ingest",
+          body: "Safaricom's Daraja C2B confirmation is the only way to earn. The engine reads the payload, resolves the merchant by shortcode, upserts the shopper by normalised phone, and handles STK success from the result callback keyed on the M-Pesa receipt number.",
+        },
+        {
+          label: "Ledger",
+          body: "Points live in an append-only transactions ledger with the M-Pesa receipt as a unique key; the balance and tier row is updated inside the same PostgreSQL transaction, so there is no window where the books and the balance disagree.",
+        },
+        {
+          label: "Idempotency",
+          body: "Two guards, one cheap and one authoritative: a 24-hour Redis lock absorbs the hot replay, and the unique receipt constraint stops it if Redis is cold. A retried callback is acknowledged, never credited twice.",
+        },
+        {
+          label: "Redemption",
+          body: "Cashiers hit the POS API with the merchant's own key. Balance lookups are read-only; redeeming takes SELECT … FOR UPDATE on the balance row and rejects a reused reference, so two tills cannot spend the same points.",
+        },
+        {
+          label: "Tenancy & auth",
+          body: "One engine, many shops: keys are stored hashed and compared in constant time, a role matrix keeps merchant keys off platform-admin routes, C2B callbacks carry an HMAC-SHA256 signature over the raw body, and each merchant gets its own rate-limit window.",
+        },
+        {
+          label: "Workers",
+          body: "Outbound events are persisted before any network call, then retried with exponential backoff to a dead-letter state; stale pending STK pushes are reconciled to failed so a shopper never watches an eternal spinner.",
+        },
+      ],
+      rust: {
+        lede:
+          "The engine is Rust all the way down — Axum on Tokio, SQLx against PostgreSQL, one shared state struct, one error type. These are the parts that decide how it behaves under a payment storm.",
+        notes: [
+          {
+            label: "Layers",
+            body: "One Axum Router wrapped in Tower layers: gzip/brotli compression, a 2 MB body cap, request-id generation and propagation, a per-request timeout that answers 504 instead of holding a socket, and trace spans. A Prometheus recorder is installed once at boot and /metrics renders from its handle; a from_fn middleware counts every request into an AtomicU64.",
+          },
+          {
+            label: "State",
+            body: "AppState is a Clone struct holding the PgPool, a Redis ConnectionManager, the config, broadcast senders and the metrics handle, handed to handlers by State<AppState>. Merchant auth is a real FromRequestParts implementation — ApiKeyAuth(Merchant) — whose Rejection is AppError, so an unauthenticated request never enters a handler body.",
+          },
+          {
+            label: "Errors",
+            body: "A single thiserror enum, AppError, with #[from] conversions from sqlx::Error, redis::RedisError and serde_json::Error. IntoResponse turns any variant into one JSON envelope — { error: { code, message } } — so handlers return Result<Json<T>, AppError> and never hand-build an error response.",
+          },
+          {
+            label: "Transactions",
+            body: "Credit paths are explicit: pool.begin(), upsert the customer, append to the ledger, update balance and tier, tx.commit(). Redemption takes SELECT … FOR UPDATE on the balance row inside the same transaction, so two tills serialise rather than race. sqlx::migrate! applies the whole migration set on boot.",
+          },
+          {
+            label: "Tasks",
+            body: "Four tokio::spawn loops — STK reconciliation, webhook retries, points expiry, replay-storm watchdog — share a watch::Sender<bool> for shutdown and return JoinHandles that main awaits on SIGINT/SIGTERM, so background work drains before the process exits. Live updates fan out over tokio::sync::broadcast to the SSE streams.",
+          },
+          {
+            label: "Primitives",
+            body: "sha2 for stored key hashes, subtle::ConstantTimeEq for the comparison, hmac + hex over the raw webhook body, rustls with the ring provider installed once at startup, reqwest on rustls for outbound calls. A lock-free circuit breaker — atomics behind an Arc — is staged for the Daraja and WhatsApp paths.",
+          },
+        ],
+        listing: {
+          caption:
+            "src/cache.rs — the lock every C2B callback must win before it can credit a point",
+          code: `pub async fn acquire_idempotency_lock(
+    conn: &mut ConnectionManager,
+    trans_id: &str,
+    ttl_seconds: u64,
+) -> Result<bool, redis::RedisError> {
+    let key = format!("loyalmini:idempotency:c2b:{trans_id}");
+    let result: Option<String> = redis::cmd("SET")
+        .arg(&key)
+        .arg("1")
+        .arg("EX")
+        .arg(ttl_seconds)
+        .arg("NX")
+        .query_async(conn)
+        .await?;
+    Ok(result.is_some())
+}`,
+        },
+      },
     },
   },
   {
