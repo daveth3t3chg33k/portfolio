@@ -1,11 +1,12 @@
 import Image from "next/image";
 import type { Project } from "@/lib/projects";
+import { coverFor, type Cover } from "@/lib/covers";
 
 /* ------------------------------------------------------------------
-   THE PLATE — one real capture per case file, set like a page in a
-   monograph: a numbered rule, the image, a caption. Never a card and
-   never a mockup. Projects without a live URL print a typographic
-   plate instead of pretending to have a screenshot.
+   THE PLATE — one image per case file, set like a page in a monograph:
+   a numbered rule, the image, a caption. A project with a public URL
+   prints its real capture; one without prints the cover plate drawn for
+   its case, labelled as a drawing rather than passed off as a screenshot.
 ------------------------------------------------------------------- */
 
 const statusLabel = {
@@ -31,31 +32,30 @@ function StackTags({ items }: { items: string[] }) {
   );
 }
 
-function TypographicPlate({ project }: { project: Project }) {
+function CoverPlate({ project, cover }: { project: Project; cover: Cover }) {
   return (
     <div className="relative overflow-hidden border-x border-b border-hairline bg-paper">
-      <span
-        className="pointer-events-none absolute -bottom-[0.18em] right-4 select-none font-display text-[34vw] leading-none tracking-[-0.06em] text-paper-2 md:right-10 md:text-[15vw]"
-        aria-hidden="true"
-      >
-        {project.index}
-      </span>
+      <Image
+        src={cover.src}
+        alt={cover.alt}
+        width={cover.width}
+        height={cover.height}
+        sizes="(min-width: 1400px) 1320px, 100vw"
+        className="h-auto w-full"
+      />
 
-      <div className="relative px-6 py-14 md:px-14 md:py-16">
-        <div className="max-w-2xl">
+      <div className="border-t border-hairline px-6 py-8 md:px-10">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-10 gap-y-4">
           <p className="font-mono text-[0.58rem] uppercase tracking-[0.14em] text-faint">
             {project.category}
           </p>
-          <p className="mt-6 font-display text-[2.6rem] leading-none md:text-[3.4rem]">
-            <em className="italic-signal">Specimen</em>
-          </p>
-          <p className="mt-4 max-w-sm font-mono text-[0.6rem] uppercase leading-relaxed tracking-[0.12em] text-faint">
+          <p className="font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
             {project.year} · {statusLabel[project.status]} · no public
             deployment
           </p>
-          <div className="mt-12">
-            <StackTags items={project.stack} />
-          </div>
+        </div>
+        <div className="mt-5">
+          <StackTags items={project.stack} />
         </div>
       </div>
     </div>
@@ -64,6 +64,7 @@ function TypographicPlate({ project }: { project: Project }) {
 
 export default function ProjectPlate({ project }: { project: Project }) {
   const { shot } = project;
+  const cover = shot ? undefined : coverFor(project.slug);
   const live = project.links.find((l) => l.href.startsWith("http"));
 
   return (
@@ -73,7 +74,11 @@ export default function ProjectPlate({ project }: { project: Project }) {
           Plate {project.index}
         </p>
         <p className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-faint">
-          {shot ? `${shot.source} · ${shot.captured}` : "Case plate · no capture"}
+          {shot
+            ? `${shot.source} · ${shot.captured}`
+            : cover
+              ? `Drawn plate · ${cover.motif}`
+              : "Case plate · no capture"}
         </p>
       </div>
 
@@ -89,15 +94,26 @@ export default function ProjectPlate({ project }: { project: Project }) {
             className="h-auto w-full"
           />
         </div>
+      ) : cover ? (
+        <CoverPlate project={project} cover={cover} />
       ) : (
-        <TypographicPlate project={project} />
+        <div className="border-x border-b border-hairline bg-paper px-6 py-14 md:px-14">
+          <p className="font-display text-[2.6rem] leading-none">
+            <em className="italic-signal">Specimen</em>
+          </p>
+          <div className="mt-10">
+            <StackTags items={project.stack} />
+          </div>
+        </div>
       )}
 
       <figcaption className="mt-3 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
         <span className="max-w-xl text-sm text-muted">
           {shot
             ? shot.caption
-            : `${project.tagline} — no public URL to capture, so the case is set as a plate.`}
+            : cover
+              ? `${project.tagline} — cover plate drawn for this case, not a screenshot.`
+              : `${project.tagline} — no public URL to capture, so the case is set as a plate.`}
         </span>
         {live && (
           <a

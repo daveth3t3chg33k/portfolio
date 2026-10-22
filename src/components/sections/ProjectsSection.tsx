@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { projects, type Project } from "@/lib/projects";
+import { coverFor } from "@/lib/covers";
 
 /* ------------------------------------------------------------------
    THE WORK — a numbered index, not a card grid. Hairline rows, one
@@ -40,6 +42,27 @@ function RowGrid({
       </span>
       {trailing}
     </>
+  );
+}
+
+function CoverThumb({ project }: { project: Project }) {
+  const cover = coverFor(project.slug);
+  if (!cover) return null;
+
+  return (
+    <figure>
+      <Image
+        src={cover.src}
+        alt={cover.alt}
+        width={cover.width}
+        height={cover.height}
+        sizes="(min-width: 768px) 320px, 100vw"
+        className="h-auto w-full border border-hairline"
+      />
+      <figcaption className="mt-2 font-mono text-[0.56rem] uppercase tracking-[0.12em] text-faint">
+        Plate {project.index} · {cover.motif}
+      </figcaption>
+    </figure>
   );
 }
 
@@ -100,7 +123,10 @@ function ExpandRow({
         <div className="overflow-hidden">
           <div className="grid grid-cols-1 gap-8 pb-10 md:grid-cols-12 md:gap-10">
             <div className="md:col-span-1" />
-            <div className="md:col-span-6">
+            <div className="md:col-span-3 md:col-start-2">
+              <CoverThumb project={project} />
+            </div>
+            <div className="md:col-span-5 md:col-start-5">
               <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
                 The problem
               </p>
@@ -112,7 +138,7 @@ function ExpandRow({
               <p className="mt-2 max-w-xl text-foreground">{project.outcome}</p>
             </div>
 
-            <div className="md:col-span-4 md:col-start-9">
+            <div className="md:col-span-3 md:col-start-10">
               <StackTags items={project.stack} />
 
               <div className="mt-6 flex flex-col items-start gap-3">

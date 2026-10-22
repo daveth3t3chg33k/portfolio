@@ -24,13 +24,24 @@ browser. Copy `.env.example` to `.env.local` and fill it in:
 Without `RESEND_API_KEY` the endpoint answers `501` and the form hands the
 typed message back as a mailto draft instead of pretending it was sent.
 
-## Work screenshots
+## Work images
 
-`public/work/*.webp` are real captures, refreshed with:
+Two kinds of plate, kept deliberately separate:
+
+- `public/work/*.webp` — real captures of live deployments, refreshed with
 
 ```bash
 node scripts/capture-work-shots.mjs [slug ...]
 ```
 
-It needs a local Chrome and the `sharp` dev dependency; projects with no live
-deployment deliberately use the typographic plate instead of a capture.
+- `public/work/covers/*.webp` — a cover drawn for every project, generated with
+
+```bash
+node scripts/generate-project-covers.mjs [slug ...]
+```
+
+Both need the `sharp` dev dependency (the captures also need local Chrome).
+Covers are deterministic geometry seeded from the slug — artwork, not
+screenshots, and the caption on the plate says so. A project with a live URL
+prints its real capture on the case page; its cover is the index thumbnail,
+and every project without a deployment prints its cover as the plate.
