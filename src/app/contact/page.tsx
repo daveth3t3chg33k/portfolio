@@ -7,7 +7,7 @@ import { site } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Hire Dave Kamirah — full-stack engineering, product frontends and low-level performance work. Email mburudave@gmail.com or +254 713 969 865.",
+    "Hire Dave Kamirah — full-stack engineering, product frontends and low-level performance work. Email mburudave033@gmail.com or +254 713 969 865.",
 };
 
 const steps = [

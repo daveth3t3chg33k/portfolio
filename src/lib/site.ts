@@ -4,7 +4,7 @@ export const site = {
   name: "Dave Kamirah",
   alias: "CodeSavant",
   role: "Full-stack engineer",
-  email: "mburudave@gmail.com",
+  email: "mburudave033@gmail.com",
   phone: "+254 713 969 865",
   phoneHref: "tel:+254713969865",
   location: "Nairobi, Kenya — EAT+03",
